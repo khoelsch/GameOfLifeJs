@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>JavaScript implementation of Convay's Game Of Life</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
+  
+    <script type="text/javascript">
+      // Helper function to display test results
+      function assert(expr, assumption) {
+        var li = document.createElement('li');
+        li.className = !!expr ? 'success' : 'failure';
+        li.appendChild(document.createTextNode(assumption));
+        document.getElementById('testResults').appendChild(li);
+      }
+
+      // Execute our code, when document is loaded
+      window.onload = function() {
+        assert(true, 'So true buddy.');
+        assert(false, 'Awww, nooo!');
+      }
+    </script>
+  
+    <ul id="testResults"></ul>
+  </body>
+</html>

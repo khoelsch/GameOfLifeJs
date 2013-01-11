@@ -15,12 +15,18 @@
        *  - the first is the TOP LEFT corner (imagine the field as rows stacked upon each other)
        */
       function GameOfLifeField(edgeSize) {
+        var field = new Array();
+        for (var i=0; i<edgeSize; ++i) {
+          field.push(new Array(edgeSize));
+        }
+
         /**
          * Method that returns the state of a cell:
          *  -> true = living cell
          *  -> false = dead cell
          */
         this.cellAt = function (row, col) {
+          return !!field[row][col];
         }
 
         this.performLifecycle = function() {
@@ -39,7 +45,7 @@
         document.getElementById('testResults').appendChild(li);
       };
 
-      // TEST #01
+      // Test #01
       function assertNewFieldContainsOnlyDeadCells() {
         var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);
@@ -56,9 +62,30 @@
         assert(allCellsAreDead, 'All cells are dead in a newly created Game Of Life.')
       };
 
+
+      // Test #02 (starting to test for 1. Rule: 'Cell dies, if less that TWO living neighbours')
+      function assertRuleOneHoldsAllCellsDie() {
+        var edgeSize = 3;
+        var golField = new GameOfLifeField(edgeSize);
+
+        // only one living cell in each corner
+        golField.setCellState(0, 0, true);
+        golField.setCellState(0, 2, true);
+        golField.setCellState(2, 0, true);
+        golField.setCellState(2, 2, true);
+
+        var allCellsAreDead = !golField.cellAt(0, 0)
+          && !golField.cellAt(0, 2)
+          && !golField.cellAt(2, 0)
+          && !golField.cellAt(2, 2);
+
+        assert(allCellsAreDead, 'All cells died!')
+      }
+
       // Execute our code, when document is loaded
       window.onload = function() {
         assertNewFieldContainsOnlyDeadCells();
+        assertRuleOneHoldsAllCellsDie();
       };
     </script>
   

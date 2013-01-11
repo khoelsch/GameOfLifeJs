@@ -6,45 +6,60 @@
   <body>
   
     <script type="text/javascript">
+      /**
+       * Assumptions:
+       *
+       *  - the field is 2D
+       *  - the field is finite
+       *  - the field is a square field with 'edgeSize' fields
+       *  - the first is the TOP LEFT corner (imagine the field as rows stacked upon each other)
+       */
+      function GameOfLifeField(edgeSize) {
+        /**
+         * Method that returns the state of a cell:
+         *  -> true = living cell
+         *  -> false = dead cell
+         */
+        this.cellAt = function (row, col) {
+        }
+
+        this.performLifecycle = function() {
+        }
+
+        this.setCellState = function(row,col, newState) {
+        }
+      };
+
+
       // Helper function to display test results
       function assert(expr, assumption) {
         var li = document.createElement('li');
         li.className = !!expr ? 'success' : 'failure';
         li.appendChild(document.createTextNode(assumption));
         document.getElementById('testResults').appendChild(li);
-      }
+      };
+
+      // TEST #01
+      function assertNewFieldContainsOnlyDeadCells() {
+        var edgeSize = 3;
+        var golField = new GameOfLifeField(edgeSize);
+        var allCellsAreDead = true;
+
+        for (var row=0; row<edgeSize; ++row) {
+          for (var col=0; col<edgeSize; ++col) {
+            if (golField.cellAt(row, col)) {
+              allCellsAreDead = false;
+            }
+          }
+        }
+
+        assert(allCellsAreDead, 'All cells are dead in a newly created Game Of Life.')
+      };
 
       // Execute our code, when document is loaded
       window.onload = function() {
-        //assert(true, 'So true buddy.');
-        //assert(false, 'Awww, nooo!');
-
-        /**
-         * Assumptions:
-         *
-         *  - the field is 2D
-         *  - the field is finite
-         *  - the field is a square field with 'edgeSize' fields
-         *  - the first is the TOP LEFT corner:
-         */
-        function GameOfLifeField(edgeSize) {
-          /**
-           * Method that returns the state of a cell:
-           *  -> true = living cell
-           *  -> false = dead cell
-           */
-          this.cellAt = function (x, y) {
-          }
-
-
-          this.performLifecycle = function() {
-          }
-
-
-          this.setCellState = function(x,y, newState) {
-          }
-        }
-      }
+        assertNewFieldContainsOnlyDeadCells();
+      };
     </script>
   
     <ul id="testResults"></ul>

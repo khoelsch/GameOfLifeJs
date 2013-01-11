@@ -15,6 +15,10 @@
        *  - the first is the TOP LEFT corner (imagine the field as rows stacked upon each other)
        */
       function GameOfLifeField(edgeSize) {
+        // retain context for "private" helper functions
+        var thisObj = this;
+
+        // "private" field
         var field = new Array();
         for (var i=0; i<edgeSize; ++i) {
           field.push(new Array(edgeSize));
@@ -25,19 +29,52 @@
          *  -> true = living cell
          *  -> false = dead cell
          */
-        this.cellAt = function (row, col) {
+        this.livingCellAt = function (row, col) {
           return !!field[row][col];
-        }
+        };
 
         this.performLifecycle = function() {
-        }
+          for (var row=0; row<edgeSize; ++row) {
+            for (var col=0; col<edgeSize; ++col) {
+              if (livingNeighborsCount(row,col) < 2) {
+                thisObj.setCell(row, col, false);
+              }
+            }
+          }
+        };
 
-        this.setCellState = function(row,col, newState) {
-        }
+        this.setCell = function(row,col, newState) {
+          field[row][col] = newState;
+        };
+
+        //
+        // "private" helper functions
+        //
+        var livingNeighborsCount = function(row, col) {
+          var count = 0;
+          for (var rowOffset = -1; rowOffset<=1; ++rowOffset) {
+            for (var colOffset = -1; colOffset<=1; ++colOffset) {
+              var tmpRow = row + rowOffset;
+              var tmpCol = col + colOffset;
+              if (isValidIndex(tmpRow)
+                      && isValidIndex(tmpCol)
+                      && thisObj.livingCellAt(tmpRow, tmpCol)) {
+                ++count;
+              }
+            }
+          }
+          return count;
+        };
+
+        var isValidIndex = function (index) {
+          return (index > 0) && (index < edgeSize);
+        };
       };
 
 
+      //
       // Helper function to display test results
+      //
       function assert(expr, assumption) {
         var li = document.createElement('li');
         li.className = !!expr ? 'success' : 'failure';
@@ -45,7 +82,10 @@
         document.getElementById('testResults').appendChild(li);
       };
 
-      // Test #01
+
+      //
+      // The tests
+      //
       function assertNewFieldContainsOnlyDeadCells() {
         var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);
@@ -53,7 +93,7 @@
 
         for (var row=0; row<edgeSize; ++row) {
           for (var col=0; col<edgeSize; ++col) {
-            if (golField.cellAt(row, col)) {
+            if (golField.livingCellAt(row, col)) {
               allCellsAreDead = false;
             }
           }
@@ -62,30 +102,61 @@
         assert(allCellsAreDead, 'All cells are dead in a newly created Game Of Life.')
       };
 
+      function assertChangingCellStateWorks() {
+        var edgeSize = 3;
+        var golField = new GameOfLifeField(edgeSize);
 
-      // Test #02 (starting to test for 1. Rule: 'Cell dies, if less that TWO living neighbours')
-      function assertRuleOneHoldsAllCellsDie() {
+        golField.setCell(0, 0, true);
+        golField.setCell(0, 1, false);
+
+        var stateWasSaved = golField.livingCellAt(0,0) && !golField.livingCellAt(0,1);
+        assert(stateWasSaved, 'Changing cell state has effect.')
+      }
+
+      // Starting to test for 1. Rule: 'Cell dies, if less that TWO living neighbours')
+      function assertRuleOneHolds_allCellsDie() {
         var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);
 
         // only one living cell in each corner
-        golField.setCellState(0, 0, true);
-        golField.setCellState(0, 2, true);
-        golField.setCellState(2, 0, true);
-        golField.setCellState(2, 2, true);
+        golField.setCell(0, 0, true);
+        golField.setCell(0, 2, true);
+        golField.setCell(2, 0, true);
+        golField.setCell(2, 2, true);
 
-        var allCellsAreDead = !golField.cellAt(0, 0)
-          && !golField.cellAt(0, 2)
-          && !golField.cellAt(2, 0)
-          && !golField.cellAt(2, 2);
+        golField.performLifecycle();
 
+        var allCellsAreDead = !golField.livingCellAt(0, 0)
+          && !golField.livingCellAt(0, 2)
+          && !golField.livingCellAt(2, 0)
+          && !golField.livingCellAt(2, 2);
         assert(allCellsAreDead, 'All cells died!')
       }
 
+      function assertRuleOneHolds_twoNeighborCellsLive() {
+        /*var edgeSize = 3;
+        /*var edgeSize = 3;
+        var golField = new GameOfLifeField(edgeSize);
+
+        golField.setCell(0, 0, true);
+        golField.setCell(0, 1, true);
+
+        golField.performLifecycle();
+
+        // TODO.....................
+
+        var bothCellsAreAlive = golField;
+        */
+      }
+
+      //
       // Execute our code, when document is loaded
+      //
       window.onload = function() {
         assertNewFieldContainsOnlyDeadCells();
-        assertRuleOneHoldsAllCellsDie();
+        assertChangingCellStateWorks();
+        assertRuleOneHolds_allCellsDie();
+        // assertRuleOneHolds_twoNeighborCellsLive()
       };
     </script>
   

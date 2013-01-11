@@ -16,8 +16,34 @@
 
       // Execute our code, when document is loaded
       window.onload = function() {
-        assert(true, 'So true buddy.');
-        assert(false, 'Awww, nooo!');
+        //assert(true, 'So true buddy.');
+        //assert(false, 'Awww, nooo!');
+
+        /**
+         * Assumptions:
+         *
+         *  - the field is 2D
+         *  - the field is finite
+         *  - the field is a square field with 'edgeSize' fields
+         *  - the first is the TOP LEFT corner:
+         */
+        function GameOfLifeField(edgeSize) {
+          /**
+           * Method that returns the state of a cell:
+           *  -> true = living cell
+           *  -> false = dead cell
+           */
+          this.cellAt = function (x, y) {
+          }
+
+
+          this.performLifecycle = function() {
+          }
+
+
+          this.setCellState = function(x,y, newState) {
+          }
+        }
       }
     </script>
   

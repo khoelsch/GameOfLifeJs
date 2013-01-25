@@ -10,9 +10,14 @@
        * Assumptions:
        *
        *  - the field is 2D
-       *  - the field is finite
-       *  - the field is a square field with 'edgeSize' fields
-       *  - the first is the TOP LEFT corner (imagine the field as rows stacked upon each other)
+       *  - the field is a square field with 'edgeSize' fields on each side
+       *  - the first is the TOP LEFT corner
+       *  - to be precise, the field is indexed as follows:
+       *    ('r' for row index; 'c' for column index)
+       *
+       *       r0c0 r0c1 r0c2 r0c3
+       *       r1c0 r1c1 r1c2 r1c3
+       *       r2c0 r2c1 r2c2 r2c3
        */
       function GameOfLifeField(edgeSize) {
         // retain context for "private" helper functions
@@ -32,6 +37,7 @@
         this.livingCellAt = function (row, col) {
           return !!field[row][col];
         };
+
 
         this.performLifecycle = function() {
           for (var row=0; row<edgeSize; ++row) {
@@ -71,6 +77,23 @@
         };
       };
 
+      //
+      // Add methods to GameOfLifeField's prototype
+      //
+
+      /**
+       * Method that returns the state of a cell:
+       *  -> true = living cell
+       *  -> false = dead cell
+       */
+      /*
+      GameOfLifeField.prototype.livingCellAt = function (row, col) {
+        return !!this.field[row][col];
+      };
+      */
+      /*GameOfLifeField.prototype.isValidIndex = function (index) {
+        return (index > 0) && (index < this.edgeSize);
+      };*/
 
       //
       // Helper function to display test results

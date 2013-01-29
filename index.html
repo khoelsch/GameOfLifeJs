@@ -9,9 +9,8 @@
       /**
        * Assumptions:
        *
-       *  - the field is 2D
-       *  - the field is a square field with 'edgeSize' fields on each side
-       *  - the first is the TOP LEFT corner
+       *  - the field is a finite, two-dimensional square field with 'edgeSize' fields on each side
+       *  - the first cell is the TOP LEFT corner
        *  - to be precise, the field is indexed as follows:
        *    ('r' for row index; 'c' for column index)
        *
@@ -21,7 +20,7 @@
        */
       function GameOfLifeField(edgeSize) {
         // retain context for "private" helper functions
-        var thisObj = this;
+        var newGolField = this;
 
         // "private" field
         var field = new Array();
@@ -34,7 +33,7 @@
          *  -> true = living cell
          *  -> false = dead cell
          */
-        this.livingCellAt = function (row, col) {
+        this.cellAliveAt = function (row, col) {
           return !!field[row][col];
         };
 
@@ -43,7 +42,7 @@
           for (var row=0; row<edgeSize; ++row) {
             for (var col=0; col<edgeSize; ++col) {
               if (livingNeighborsCount(row,col) < 2) {
-                thisObj.setCell(row, col, false);
+                newGolField.setCell(row, col, false);
               }
             }
           }
@@ -64,7 +63,7 @@
               var tmpCol = col + colOffset;
               if (isValidIndex(tmpRow)
                       && isValidIndex(tmpCol)
-                      && thisObj.livingCellAt(tmpRow, tmpCol)) {
+                      && newGolField.cellAliveAt(tmpRow, tmpCol)) {
                 ++count;
               }
             }
@@ -116,7 +115,7 @@
 
         for (var row=0; row<edgeSize; ++row) {
           for (var col=0; col<edgeSize; ++col) {
-            if (golField.livingCellAt(row, col)) {
+            if (golField.cellAliveAt(row, col)) {
               allCellsAreDead = false;
             }
           }
@@ -132,7 +131,7 @@
         golField.setCell(0, 0, true);
         golField.setCell(0, 1, false);
 
-        var stateWasSaved = golField.livingCellAt(0,0) && !golField.livingCellAt(0,1);
+        var stateWasSaved = golField.cellAliveAt(0,0) && !golField.cellAliveAt(0,1);
         assert(stateWasSaved, 'Changing cell state has effect.')
       }
 
@@ -149,10 +148,10 @@
 
         golField.performLifecycle();
 
-        var allCellsAreDead = !golField.livingCellAt(0, 0)
-          && !golField.livingCellAt(0, 2)
-          && !golField.livingCellAt(2, 0)
-          && !golField.livingCellAt(2, 2);
+        var allCellsAreDead = !golField.cellAliveAt(0, 0)
+          && !golField.cellAliveAt(0, 2)
+          && !golField.cellAliveAt(2, 0)
+          && !golField.cellAliveAt(2, 2);
         assert(allCellsAreDead, 'All cells died!');
       }
 

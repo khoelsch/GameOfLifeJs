@@ -19,10 +19,7 @@
        *       r2c0 r2c1 r2c2 r2c3
        */
       function GameOfLifeField(edgeSize) {
-        // retain context for "private" helper functions
-        var newGolField = this;
-
-        // "private" field
+        // private field (since 'field' is a local variable)
         var field = new Array();
         for (var i=0; i<edgeSize; ++i) {
           field.push(new Array(edgeSize));
@@ -41,8 +38,16 @@
         this.performLifecycle = function() {
           for (var row=0; row<edgeSize; ++row) {
             for (var col=0; col<edgeSize; ++col) {
-              if (livingNeighborsCount(row,col) < 2) {
-                newGolField.setCell(row, col, false);
+
+              //
+              // note: here we set the context of the private
+              // 'livingNeighborsCount' function - accessible
+              // via the 'performLifecycle' method's closure! -
+              // to the object, that was passed to the constructor
+              // function by calling it with 'var ... = new GameOfLifeField()'
+              //
+              if (livingNeighborsCount.call(this, row,col) < 2) {
+                this.setCell(row, col, false);
               }
             }
           }
@@ -53,7 +58,7 @@
         };
 
         //
-        // "private" helper functions
+        //  private helper functions
         //
         var livingNeighborsCount = function(row, col) {
           var count = 0;
@@ -63,7 +68,7 @@
               var tmpCol = col + colOffset;
               if (isValidIndex(tmpRow)
                       && isValidIndex(tmpCol)
-                      && newGolField.cellAliveAt(tmpRow, tmpCol)) {
+                      && this.cellAliveAt(tmpRow, tmpCol)) {
                 ++count;
               }
             }

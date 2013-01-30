@@ -41,8 +41,8 @@
 
               //
               // note: here we set the context of the private
-              // 'livingNeighborsCount' function - accessible
-              // via the 'performLifecycle' method's closure! -
+              // 'livingNeighborsCount' function (accessible
+              // via the 'performLifecycle' method's closure!)
               // to the object, that was passed to the constructor
               // function by calling it with 'var ... = new GameOfLifeField()'
               //
@@ -80,24 +80,6 @@
           return (index > 0) && (index < edgeSize);
         };
       };
-
-      //
-      // Add methods to GameOfLifeField's prototype
-      //
-
-      /**
-       * Method that returns the state of a cell:
-       *  -> true = living cell
-       *  -> false = dead cell
-       */
-      /*
-      GameOfLifeField.prototype.livingCellAt = function (row, col) {
-        return !!this.field[row][col];
-      };
-      */
-      /*GameOfLifeField.prototype.isValidIndex = function (index) {
-        return (index > 0) && (index < this.edgeSize);
-      };*/
 
       //
       // Helper function to display test results

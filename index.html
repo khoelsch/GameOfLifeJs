@@ -31,24 +31,20 @@
          *  -> false = dead cell
          */
         this.cellAliveAt = function (row, col) {
-          return !!field[row][col];
+          return !!field[row][col]; // converting to Boolean by inverting,
+                                    // then inverting again to get 
+                                    // original value back
         };
 
 
         this.performLifecycle = function() {
           for (var row=0; row<edgeSize; ++row) {
             for (var col=0; col<edgeSize; ++col) {
-
-              //
-              // note: here we set the context of the private
-              // 'livingNeighborsCount' function (accessible
-              // via the 'performLifecycle' method's closure!)
-              // to the object, that was passed to the constructor
-              // function by calling it with 'var ... = new GameOfLifeField()'
-              //
-              if (livingNeighborsCount.call(this, row,col) < 2) {
-                this.setCell(row, col, false);
-              }
+              if (livingNeighborsCount.call(this, row,col) < 2) { // note: here we set the context of the private
+                this.setCell(row, col, false);                    // 'livingNeighborsCount' function (accessible
+              }                                                   // via the 'performLifecycle' method's closure!)
+                                                                  // to the object, that was passed to the constructor
+                                                                  // function by calling it with 'var ... = new GameOfLifeField()'
             }
           }
         };

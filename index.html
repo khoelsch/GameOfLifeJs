@@ -108,6 +108,12 @@
       //
       // The tests
       //
+      function assert_no_field_property_exists() {
+        var golField = new GameOfLifeField(3);
+
+        assert(golField.field === undefined, 'There exists no public "field" property on a GameOfLife object.');
+      }
+
       function assertNewFieldContainsOnlyDeadCells() {
         var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);
@@ -175,6 +181,7 @@
       // Execute our code, when document is loaded
       //
       window.onload = function() {
+        assert_no_field_property_exists();
         assertNewFieldContainsOnlyDeadCells();
         assertChangingCellStateWorks();
         assertRuleOneHolds_allCellsDie();

@@ -106,13 +106,11 @@
       function assertNewFieldContainsOnlyDeadCells() {
         var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);
-        var allCellsAreDead = true;
+        var noLivingCellFound = true;
 
         for (var row=0; row<edgeSize; ++row) {
           for (var col=0; col<edgeSize; ++col) {
-            if (golField.cellAliveAt(row, col)) {
-              allCellsAreDead = false;
-            }
+            allCellsAreDead = noLivingCellFound && !golField.cellAliveAt(row, col);
           }
         }
 
@@ -130,7 +128,11 @@
         assert(stateWasSaved, 'Changing cell state has effect.')
       }
 
-      // Starting to test for 1. Rule: 'Cell dies, if less that TWO living neighbours')
+      //
+      // Rule testing:
+      //
+      //   - 1st rule: A Cell dies, if it has less that TWO living neighbours.
+      //
       function assertRuleOneHolds_allCellsDie() {
         var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);

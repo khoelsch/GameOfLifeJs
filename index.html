@@ -118,14 +118,35 @@
       };
 
       function assertChangingCellStateWorks() {
-        var edgeSize = 3;
-        var golField = new GameOfLifeField(edgeSize);
+        var golField = createGameOfLifeFieldFrom([
+          [1, 0],
+          [1, 1]
+        ]);
 
-        golField.setCell(0, 0, true);
-        golField.setCell(0, 1, false);
-
-        var stateWasSaved = golField.cellAliveAt(0,0) && !golField.cellAliveAt(0,1);
+        var stateWasSaved = golField.cellAliveAt(0,0)
+          && !golField.cellAliveAt(0,1)
+          && golField.cellAliveAt(1,0)
+          && golField.cellAliveAt(1,1);
         assert(stateWasSaved, 'Changing cell state has effect.')
+      };
+
+      function createGameOfLifeFieldFrom(twoDimensionalArray) {
+        // in production code, we would validate the matrix' consistency!
+        var numRows = twoDimensionalArray.length,
+            numCols = twoDimensionalArray[0].length,
+            edgeSize = numRows,
+            golField = new GameOfLifeField(edgeSize),
+            currentIntVal;
+
+
+        for (var row=0; row<numRows; ++row) {
+          for (var col=0; col<numCols; ++col) {
+            currentIntVal = twoDimensionalArray[row][col];
+            golField.setCell(row, col, !!currentIntVal);
+          }
+        }
+
+        return golField;
       };
 
       //
@@ -134,14 +155,11 @@
       //   - 1st rule: A Cell dies, if it has less that TWO living neighbours.
       //
       function assertRuleOneHolds_allCellsDie() {
-        var edgeSize = 3;
-        var golField = new GameOfLifeField(edgeSize);
-
-        // only one living cell in each corner
-        golField.setCell(0, 0, true);
-        golField.setCell(0, 2, true);
-        golField.setCell(2, 0, true);
-        golField.setCell(2, 2, true);
+        var golField = createGameOfLifeFieldFrom([
+          [1, 0, 1],
+          [0, 0, 0],
+          [1, 0, 1]
+        ]);
 
         golField.performLifecycle();
 
@@ -153,12 +171,11 @@
       };
 
       function assertRuleOneHolds_cellWithTwoNeighborsLives() {
-        var edgeSize = 3;
-        var golField = new GameOfLifeField(edgeSize);
-
-        golField.setCell(0, 0, true);
-        golField.setCell(0, 1, true);
-        golField.setCell(1, 0, true);
+        var golField = createGameOfLifeFieldFrom([
+          [1, 1, 0],
+          [1, 0, 0],
+          [0, 0, 0]
+        ]);        
 
         golField.performLifecycle();
 
@@ -173,6 +190,8 @@
       // Execute our code, when document is loaded
       //
       window.onload = function() {
+assert(!0, '!0 is true');
+
         assert_we_have_private_properties();
         assertNewFieldContainsOnlyDeadCells();
         assertChangingCellStateWorks();

@@ -1,7 +1,9 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
   <head>
     <title>JavaScript implementation of Convay's Game Of Life</title>
     <link rel="stylesheet" type="text/css" href="styles.css" />
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
   </head>
   <body>
   
@@ -25,11 +27,20 @@
         //
         var field = new Array(),     // the current game state
             newField = new Array();  // state after lifecyle
-
         for (var i=0; i<edgeSize; ++i) {
           field.push(new Array(edgeSize));
           newField.push(new Array(edgeSize));
         }
+
+       // rules of a Game Of Life
+       var rules = [
+          // rule no. 1
+          function(thisNewGolField, row, col) {
+            return (livingNeighborsCount.call(thisNewGolField, row, col) < 2)
+              ? false
+              : field[row,col]; // current game state
+          }
+        ];
 
         /**
          * Method that returns the state of a cell:
@@ -50,33 +61,17 @@
                                                               // via the 'performLifecycle' method's closure!)
                                                                   // to the object, that was passed to the constructor
                                                                   // function by calling it with 'var ... = new GameOfLifeField()'
-
+          // remembering current context for
+          // access via closures
           var thisNewGolField = this;
-          var rules = [
-            function(row, col) {
-
-              return (livingNeighborsCount.call(thisNewGolField, row, col) < 2)
-                ? false
-                : field[row,col];
-            }
-          ];
-
-/*
-(function () {
-
-  // ...
-
-})();
-*/
 
           var evaluateRules = function(row, col) {
             var newCellState,              
                 currentRule;
             for (var i=0; i<rules.length; ++i) {
               currentRule = rules[i];
-              newCellState = currentRule(row, col);
+              newCellState = currentRule(thisNewGolField, row, col);
             }
-
             // remembering the result of rule evaluation,
             // without changing the current game state!
             newField[row][col] = newCellState;

@@ -19,10 +19,16 @@
        *       r2c0 r2c1 r2c2 r2c3
        */
       function GameOfLifeField(edgeSize) {
-        // private field (since 'field' is a local variable)
-        var field = new Array();
+
+        //
+        // private fields (since 'field' is a local variable)
+        //
+        var field = new Array(),     // the current game state
+            newField = new Array();  // state after lifecyle
+
         for (var i=0; i<edgeSize; ++i) {
           field.push(new Array(edgeSize));
+          newField.push(new Array(edgeSize));
         }
 
         /**
@@ -38,31 +44,49 @@
 
 
         this.performLifecycle = function() {
+
+              // note: here we set the context of the private
+                                    // 'livingNeighborsCount' function (accessible
+                                                              // via the 'performLifecycle' method's closure!)
+                                                                  // to the object, that was passed to the constructor
+                                                                  // function by calling it with 'var ... = new GameOfLifeField()'
+
           var thisNewGolField = this;
           var rules = [
             function(row, col) {
+
               return (livingNeighborsCount.call(thisNewGolField, row, col) < 2)
                 ? false
                 : field[row,col];
             }
           ];
 
-          var newCellState;
-          var currentRule;
-          for (var row=0; row<edgeSize; ++row) {
-            for (var col=0; col<edgeSize; ++col) {
-              for (var i=0; i<rules.length; ++i) {
-                currentRule = rules[i];
-                newCellState = currentRule(row, col);
-              }
-              this.setCell(row, col, newCellState);
-              // note: here we set the context of the private
-                                    // 'livingNeighborsCount' function (accessible
-                                                              // via the 'performLifecycle' method's closure!)
-                                                                  // to the object, that was passed to the constructor
-                                                                  // function by calling it with 'var ... = new GameOfLifeField()'
+/*
+(function () {
+
+  // ...
+
+})();
+*/
+
+          var evaluateRules = function(row, col) {
+            var newCellState,              
+                currentRule;
+            for (var i=0; i<rules.length; ++i) {
+              currentRule = rules[i];
+              newCellState = currentRule(row, col);
             }
-          }
+
+            // remembering the result of rule evaluation,
+            // without changing the current game state!
+            newField[row][col] = newCellState;
+          };
+          forEachCell(evaluateRules);
+
+          var copyNewGameState = function(row, col) {
+            field[row][col] = newField[row][col];   
+          };
+          forEachCell(copyNewGameState);
         };
 
         this.setCell = function(row,col, newCellState) {
@@ -87,7 +111,9 @@
               }
             }
           }
-          count = this.cellAliveAt(row, col) // the current cell is not a neighbor of it self!
+
+          // the current cell is not a neighbor of it self!
+          count = this.cellAliveAt(row, col) 
             ? --count
             : count;
           return count;
@@ -95,6 +121,14 @@
 
         var isValidIndex = function (index) {
           return (index >= 0) && (index < edgeSize);
+        };
+
+        var forEachCell = function(callback) {
+          for (var row=0; row<edgeSize; ++row) {
+            for (var col=0; col<edgeSize; ++col) {
+              callback(row, col);
+            }
+          }            
         };
       };
 

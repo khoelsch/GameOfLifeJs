@@ -57,6 +57,8 @@
         //  private helper functions (don't pollute the global namespace)
         //
         var livingNeighborsCount = function(row, col) {
+          // iterate over a 3x3 subset of the field, with
+          // the cell at 'field[row,col]'' as its center
           var count = 0;
           for (var rowOffset = -1; rowOffset<=1; ++rowOffset) {
             for (var colOffset = -1; colOffset<=1; ++colOffset) {
@@ -69,11 +71,14 @@
               }
             }
           }
+          count = this.cellAliveAt(row, col) // the current cell is not a neighbor of it self!
+            ? --count
+            : count;
           return count;
         };
 
         var isValidIndex = function (index) {
-          return (index > 0) && (index < edgeSize);
+          return (index >= 0) && (index < edgeSize);
         };
       };
 
@@ -174,23 +179,25 @@
         var golField = createGameOfLifeFieldFrom([
           [1, 1, 0],
           [1, 0, 0],
-          [0, 0, 0]
+          [0, 0, 1]
         ]);        
 
         golField.performLifecycle();
 
         var cellInTopLeftCornerSurvives = golField.cellAliveAt(0, 0)
-          && !golField.cellAliveAt(0, 1)
-          && !golField.cellAliveAt(1, 0);
-
+          && golField.cellAliveAt(0, 1)
+          && golField.cellAliveAt(1, 0)
+          && !golField.cellAliveAt(2, 2);
          assert(cellInTopLeftCornerSurvives, 'Only the cell at (0,0) survives.')
       };
+
 
       //
       // Execute our code, when document is loaded
       //
       window.onload = function() {
-assert(!0, '!0 is true');
+        assert(!0, '"0" is false');
+        assert(1, '"1" is true');
 
         assert_we_have_private_properties();
         assertNewFieldContainsOnlyDeadCells();

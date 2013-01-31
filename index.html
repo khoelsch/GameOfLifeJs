@@ -30,7 +30,7 @@
          *  -> true = living cell
          *  -> false = dead cell
          */
-        this.cellAliveAt = function (row, col) {
+        this.cellAliveAt = function(row, col) {
           return !!field[row][col]; // converting to Boolean by inverting,
                                     // then inverting again to get 
                                     // original value back
@@ -38,19 +38,35 @@
 
 
         this.performLifecycle = function() {
+          var thisNewGolField = this;
+          var rules = [
+            function(row, col) {
+              return (livingNeighborsCount.call(thisNewGolField, row, col) < 2)
+                ? false
+                : field[row,col];
+            }
+          ];
+
+          var newCellState;
+          var currentRule;
           for (var row=0; row<edgeSize; ++row) {
             for (var col=0; col<edgeSize; ++col) {
-              if (livingNeighborsCount.call(this, row,col) < 2) { // note: here we set the context of the private
-                this.setCell(row, col, false);                    // 'livingNeighborsCount' function (accessible
-              }                                                   // via the 'performLifecycle' method's closure!)
+              for (var i=0; i<rules.length; ++i) {
+                currentRule = rules[i];
+                newCellState = currentRule(row, col);
+              }
+              this.setCell(row, col, newCellState);
+              // note: here we set the context of the private
+                                    // 'livingNeighborsCount' function (accessible
+                                                              // via the 'performLifecycle' method's closure!)
                                                                   // to the object, that was passed to the constructor
                                                                   // function by calling it with 'var ... = new GameOfLifeField()'
             }
           }
         };
 
-        this.setCell = function(row,col, newState) {
-          field[row][col] = newState;
+        this.setCell = function(row,col, newCellState) {
+          field[row][col] = newCellState;
         };
 
         //
@@ -58,7 +74,7 @@
         //
         var livingNeighborsCount = function(row, col) {
           // iterate over a 3x3 subset of the field, with
-          // the cell at 'field[row,col]'' as its center
+          // the cell at 'field[row,col] as its center
           var count = 0;
           for (var rowOffset = -1; rowOffset<=1; ++rowOffset) {
             for (var colOffset = -1; colOffset<=1; ++colOffset) {

@@ -126,7 +126,7 @@
 
         var stateWasSaved = golField.cellAliveAt(0,0) && !golField.cellAliveAt(0,1);
         assert(stateWasSaved, 'Changing cell state has effect.')
-      }
+      };
 
       //
       // Rule testing:
@@ -150,23 +150,24 @@
           && !golField.cellAliveAt(2, 0)
           && !golField.cellAliveAt(2, 2);
         assert(allCellsAreDead, 'All cells died!');
-      }
+      };
 
-      function assertRuleOneHolds_twoNeighborCellsLive() {
-        /*var edgeSize = 3;
-        /*var edgeSize = 3;
+      function assertRuleOneHolds_cellWithTwoNeighborsLives() {
+        var edgeSize = 3;
         var golField = new GameOfLifeField(edgeSize);
 
         golField.setCell(0, 0, true);
         golField.setCell(0, 1, true);
+        golField.setCell(1, 0, true);
 
         golField.performLifecycle();
 
-        // TODO.....................
+        var cellInTopLeftCornerSurvives = golField.cellAliveAt(0, 0)
+          && !golField.cellAliveAt(0, 1)
+          && !golField.cellAliveAt(1, 0);
 
-        var bothCellsAreAlive = golField;
-        */
-      }
+         assert(cellInTopLeftCornerSurvives, 'Only the cell at (0,0) survives.')
+      };
 
       //
       // Execute our code, when document is loaded
@@ -176,7 +177,7 @@
         assertNewFieldContainsOnlyDeadCells();
         assertChangingCellStateWorks();
         assertRuleOneHolds_allCellsDie();
-        // assertRuleOneHolds_twoNeighborCellsLive()
+        assertRuleOneHolds_cellWithTwoNeighborsLives();
       };
     </script>
   

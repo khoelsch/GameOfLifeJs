@@ -21,66 +21,43 @@
        *       r2c0 r2c1 r2c2 r2c3
        */
       function GameOfLifeField(edgeSize) {
-        var that = this; // remembering the object that was passed to the constructor by calling 'var ... = new GameOfLifeField()'.)
+        var that = this; // - remembering the object that was passed to the constructor by calling 'var ... = new GameOfLifeField()'
+        
+        //
+        // PRIVATE variables (since they are scoped by the constructor function!)
+        //
+        var field = square2dMatrix(edgeSize),    // - the current game state
+            newField = square2dMatrix(edgeSize); // - state after lifecyle
 
         //
-        // PRIVATE fields (since 'field' is a local variable)
-        //
-        var field = new Array(),     // the current game state
-            newField = new Array();  // state after lifecyle
-        for (var i=0; i<edgeSize; ++i) {
-          field.push(new Array(edgeSize));
-          newField.push(new Array(edgeSize));
-        }
-
         // Rules of a Game Of Life
         // 
         //
-        var rules = [
+        var ruleCallbacks = [
           // 1st rule: A Cell dies, if it has less that TWO living neighbours.
-          function(context, row, col) {
-            return (livingNeighborsCount.call(context, row, col) < 2) // (Note: Here we explicitly set the context of 'livingNeighborsCount(...)'
-              ? false //  by sing by using 'call(...). The context is set to the new object
-              : field[row,col]; // current game state
+          function(row, col) {
+            return (livingNeighborsCount(row, col) < 2)
+              ? false                 
+              : that.cellAt(row,col);
           }
         ];
-        // for sakes of readability, this private helper function is declared
-        // near the rule definition
-        var livingNeighborsCount = function(row, col) {
-          // iterate over a 3x3 subset of the field, with
-          // the cell at 'field[row,col] as its center
-          var count = 0;
-          for (var rowOffset = -1; rowOffset<=1; ++rowOffset) {
-            for (var colOffset = -1; colOffset<=1; ++colOffset) {
-              var tmpRow = row + rowOffset;
-              var tmpCol = col + colOffset;
-              if (isValidIndex(tmpRow)
-                      && isValidIndex(tmpCol)
-                      && that.cellAliveAt(tmpRow, tmpCol)) {
-                ++count;
-              }
-            }
-          }
-
-          // the current cell is not a neighbor of it self!
-          count = that.cellAliveAt(row, col) 
-            ? --count
-            : count;
-          return count;
-        };
 
 
         //
         // PUBLIC methods
         //
+        this.cellAt = function(row, col) {
+          return field[row][col];
+        };
+
         this.cellAliveAt = function(row, col) {
-          return !!field[row][col]; // converting to Boolean by inverting,
-                                    // then inverting again to get original value back
+          return !!field[row][col]; // converting to Boolean by inverting, then
+                                    // inverting again to get original value back
         };
 
         this.performLifecycle = function() {
-          forEachCell(evaluateRules, this);    // Some forward referencing and... 
-          forEachCell(copyNewGameState, this); // ...passing this as context for later use callbacks.
+          forEachCell(evaluateRules);
+          forEachCell(copyNewGameState);
         };
 
         this.setCell = function(row,col, newCellState) {
@@ -91,38 +68,65 @@
         //
         //  PRIVATE helper functions (don't pollute the global namespace)
         //
-        var forEachCell = function(callback, context) {
+        var forEachCell = function(callback) {
           for (var row=0; row<edgeSize; ++row) {
             for (var col=0; col<edgeSize; ++col) {
-              callback(context, row, col);
+              callback(row, col);
             }
           }            
         };
 
-        var evaluateRules = function(context, row, col) {
+        var evaluateRules = function(row, col) {
           var newCellState,              
-              currentRule;
-          for (var i=0; i<rules.length; ++i) {
-            currentRule = rules[i];
-            newCellState = currentRule(context, row, col);
+              rule;
+          for (var i=0; i<ruleCallbacks.length; ++i) {
+            rule = ruleCallbacks[i];
+            newCellState = rule(row, col);
           }
-          // remembering the result of rule evaluation,
-          // without changing the current game state!
-          newField[row][col] = newCellState;
+          
+          newField[row][col] = newCellState; // not changing the current game state here!
         };
 
-        var copyNewGameState = function(thisNewGolField, row, col) {
+        var copyNewGameState = function(row, col) {
           field[row][col] = newField[row][col];   
         };
 
+        var livingNeighborsCount = function(row, col) {
+          // iterate over a 3x3 subset of the field, with
+          // the cell at 'field[row,col]'' as its center
+          var count = 0;
+          for (var rowOffset = -1; rowOffset<=1; ++rowOffset) {
+            for (var colOffset = -1; colOffset<=1; ++colOffset) {
+              var tmpRow = row + rowOffset;
+              var tmpCol = col + colOffset;
+              if (isValidIndex(tmpRow)
+                      && isValidIndex(tmpCol)
+                      && that.cellAliveAt(tmpRow, tmpCol)) { // - referencing newly created GameOfLife via 'that'
+                ++count;
+              }
+            }
+          }
 
+          count = that.cellAliveAt(row, col) // the current cell is not a neighbor of it self!
+            ? --count
+            : count;
+          return count;
+        };
 
         var isValidIndex = function (index) {
           return (index >= 0) && (index < edgeSize);
         };
 
+
       }; // End of 'GameOfLife(...)'
 
+      function square2dMatrix(edgeSize) {
+        var rows =  new Array();
+        for (var cols=0; cols<edgeSize; ++cols) {
+          rows.push(new Array(edgeSize));
+        }
+        return rows;
+      };
 
       //
       // Helper function to display test results

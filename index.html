@@ -21,9 +21,10 @@
        *       r2c0 r2c1 r2c2 r2c3
        */
       function GameOfLifeField(edgeSize) {
+        var that = this; // remembering the object that was passed to the constructor by calling 'var ... = new GameOfLifeField()'.)
 
         //
-        // private fields (since 'field' is a local variable)
+        // PRIVATE fields (since 'field' is a local variable)
         //
         var field = new Array(),     // the current game state
             newField = new Array();  // state after lifecyle
@@ -32,65 +33,19 @@
           newField.push(new Array(edgeSize));
         }
 
-       // rules of a Game Of Life
-       var rules = [
-          // rule no. 1
-          function(thisNewGolField, row, col) {
-            return (livingNeighborsCount.call(thisNewGolField, row, col) < 2)
-              ? false
+        // Rules of a Game Of Life
+        // 
+        //
+        var rules = [
+          // 1st rule: A Cell dies, if it has less that TWO living neighbours.
+          function(context, row, col) {
+            return (livingNeighborsCount.call(context, row, col) < 2) // (Note: Here we explicitly set the context of 'livingNeighborsCount(...)'
+              ? false //  by sing by using 'call(...). The context is set to the new object
               : field[row,col]; // current game state
           }
         ];
-
-        /**
-         * Method that returns the state of a cell:
-         *  -> true = living cell
-         *  -> false = dead cell
-         */
-        this.cellAliveAt = function(row, col) {
-          return !!field[row][col]; // converting to Boolean by inverting,
-                                    // then inverting again to get 
-                                    // original value back
-        };
-
-
-        this.performLifecycle = function() {
-
-              // note: here we set the context of the private
-                                    // 'livingNeighborsCount' function (accessible
-                                                              // via the 'performLifecycle' method's closure!)
-                                                                  // to the object, that was passed to the constructor
-                                                                  // function by calling it with 'var ... = new GameOfLifeField()'
-          // remembering current context for
-          // access via closures
-          var thisNewGolField = this;
-
-          var evaluateRules = function(row, col) {
-            var newCellState,              
-                currentRule;
-            for (var i=0; i<rules.length; ++i) {
-              currentRule = rules[i];
-              newCellState = currentRule(thisNewGolField, row, col);
-            }
-            // remembering the result of rule evaluation,
-            // without changing the current game state!
-            newField[row][col] = newCellState;
-          };
-          forEachCell(evaluateRules);
-
-          var copyNewGameState = function(row, col) {
-            field[row][col] = newField[row][col];   
-          };
-          forEachCell(copyNewGameState);
-        };
-
-        this.setCell = function(row,col, newCellState) {
-          field[row][col] = newCellState;
-        };
-
-        //
-        //  private helper functions (don't pollute the global namespace)
-        //
+        // for sakes of readability, this private helper function is declared
+        // near the rule definition
         var livingNeighborsCount = function(row, col) {
           // iterate over a 3x3 subset of the field, with
           // the cell at 'field[row,col] as its center
@@ -101,31 +56,73 @@
               var tmpCol = col + colOffset;
               if (isValidIndex(tmpRow)
                       && isValidIndex(tmpCol)
-                      && this.cellAliveAt(tmpRow, tmpCol)) {
+                      && that.cellAliveAt(tmpRow, tmpCol)) {
                 ++count;
               }
             }
           }
 
           // the current cell is not a neighbor of it self!
-          count = this.cellAliveAt(row, col) 
+          count = that.cellAliveAt(row, col) 
             ? --count
             : count;
           return count;
         };
 
+
+        //
+        // PUBLIC methods
+        //
+        this.cellAliveAt = function(row, col) {
+          return !!field[row][col]; // converting to Boolean by inverting,
+                                    // then inverting again to get original value back
+        };
+
+        this.performLifecycle = function() {
+          forEachCell(evaluateRules, this);    // Some forward referencing and... 
+          forEachCell(copyNewGameState, this); // ...passing this as context for later use callbacks.
+        };
+
+        this.setCell = function(row,col, newCellState) {
+          field[row][col] = newCellState;
+        };
+
+
+        //
+        //  PRIVATE helper functions (don't pollute the global namespace)
+        //
+        var forEachCell = function(callback, context) {
+          for (var row=0; row<edgeSize; ++row) {
+            for (var col=0; col<edgeSize; ++col) {
+              callback(context, row, col);
+            }
+          }            
+        };
+
+        var evaluateRules = function(context, row, col) {
+          var newCellState,              
+              currentRule;
+          for (var i=0; i<rules.length; ++i) {
+            currentRule = rules[i];
+            newCellState = currentRule(context, row, col);
+          }
+          // remembering the result of rule evaluation,
+          // without changing the current game state!
+          newField[row][col] = newCellState;
+        };
+
+        var copyNewGameState = function(thisNewGolField, row, col) {
+          field[row][col] = newField[row][col];   
+        };
+
+
+
         var isValidIndex = function (index) {
           return (index >= 0) && (index < edgeSize);
         };
 
-        var forEachCell = function(callback) {
-          for (var row=0; row<edgeSize; ++row) {
-            for (var col=0; col<edgeSize; ++col) {
-              callback(row, col);
-            }
-          }            
-        };
-      };
+      }; // End of 'GameOfLife(...)'
+
 
       //
       // Helper function to display test results
@@ -199,10 +196,9 @@
         return golField;
       };
 
+
       //
       // Rule testing:
-      //
-      //   - 1st rule: A Cell dies, if it has less that TWO living neighbours.
       //
       function assertRuleOneHolds_allCellsDie() {
         var golField = createGameOfLifeFieldFrom([
